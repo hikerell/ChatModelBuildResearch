@@ -16,16 +16,16 @@ from torch import cuda
 from data import prepare_data
 from torch_optimizer import Adafactor
 from dialogdataset import DialogDataSet
-import horovod.torch as hvd
+# import horovod.torch as hvd
 
-hvd.init()
-logger.info("hvd.local_rank:{} ".format(hvd.local_rank()))
-logger.info("hvd.rank:{} ".format(hvd.rank()))
-logger.info("hvd.local_size:{} ".format(hvd.local_size()))
-logger.info("hvd.size:{} ".format(hvd.size()))
+# hvd.init()
+# logger.info("hvd.local_rank:{} ".format(hvd.local_rank()))
+# logger.info("hvd.rank:{} ".format(hvd.rank()))
+# logger.info("hvd.local_size:{} ".format(hvd.local_size()))
+# logger.info("hvd.size:{} ".format(hvd.size()))
 
-torch.cuda.set_device(hvd.local_rank())
-os.environ["CUDA_VISIBLE_DEVICES"] = str(hvd.local_rank())
+# torch.cuda.set_device(hvd.local_rank())
+# os.environ["CUDA_VISIBLE_DEVICES"] = str(hvd.local_rank())
 device = 'cuda'
 
 model_params = {
@@ -172,8 +172,8 @@ def T5Trainer():
         model_params["MAX_SOURCE_TEXT_LENGTH"]
     )
 
-    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=hvd.size(),
-                                                                    rank=hvd.rank(), shuffle=True)
+    # train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=hvd.size(),
+    #                                                                 rank=hvd.rank(), shuffle=True)
     # Defining the parameters for creation of dataloaders
     train_params = {
         "batch_size": model_params["TRAIN_BATCH_SIZE"],
@@ -188,16 +188,17 @@ def T5Trainer():
 
     # Creation of Dataloaders for testing and validation.
     # This will be used down for training and validation stage for the model.
-    training_loader = DataLoader(train_dataset, batch_size=train_params["batch_size"], shuffle=False,
-                                 sampler=train_sampler)
+    # training_loader = DataLoader(train_dataset, batch_size=train_params["batch_size"], shuffle=False,
+    #                              sampler=train_sampler)
+    training_loader = DataLoader(train_dataset, batch_size=train_params["batch_size"], shuffle=False)
     val_loader = DataLoader(val_dataset, **val_params)
 
     # T5训练optimizer建议使用Adafactor，见论文原文。
     optimizer = Adafactor(
-        params=model.parameters(), lr=model_params["LEARNING_RATE"] / hvd.size()
+        params=model.parameters(), lr=model_params["LEARNING_RATE"] #  / hvd.size()
     )
-    optimizer = hvd.DistributedOptimizer(optimizer, backward_passes_per_step=model_params["ACCUMULATION_STEP"])
-    hvd.broadcast_parameters(model.state_dict(), root_rank=0)
+    # optimizer = hvd.DistributedOptimizer(optimizer, backward_passes_per_step=model_params["ACCUMULATION_STEP"])
+    # hvd.broadcast_parameters(model.state_dict(), root_rank=0)
     # Training loop
     logger.info(f"[Initiating Fine Tuning]...\n")
     logger.info("the length of dataloader is: {}".format(len(training_loader)))
@@ -207,7 +208,8 @@ def T5Trainer():
         train(epoch, tokenizer, model, device, training_loader, optimizer, model_params["ACCUMULATION_STEP"])
 
         # 2) save model for each epoch
-        if hvd.rank() == 0:
+        # if hvd.rank() == 0:
+        if True:
             logger.info(f"[Saving Model]...\n")
             path = os.path.join(output_dir, "model_files" + "_epoch_{}".format(epoch))
             model.save_pretrained(path)

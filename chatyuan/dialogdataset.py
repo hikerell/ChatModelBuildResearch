@@ -33,7 +33,8 @@ class DialogDataSet(Dataset):
 
         """
         length = len(data_list)
-        self.data_list = data_list[:length - length % div_size]
+        # self.data_list = data_list[:length - length % div_size]
+        self.data_list = data_list
         self.tokenizer = tokenizer
         self.max_length = max_length
 

@@ -29,7 +29,7 @@ from dialogdataset import DialogDataSet
 device = 'cuda'
 
 model_params = {
-    "MODEL": "./ChatYuan-large-v1",  # model_type
+    "MODEL": "./ChatYuan-large-v2",  # model_type
     "TRAIN_BATCH_SIZE": 8,  # training batch size, 2
     "VALID_BATCH_SIZE": 2,  # validation batch size,8
     "TRAIN_EPOCHS": 5,  # number of training epochs

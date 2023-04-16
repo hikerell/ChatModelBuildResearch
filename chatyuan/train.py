@@ -209,22 +209,21 @@ def T5Trainer():
 
         # 2) save model for each epoch
         # if hvd.rank() == 0:
-        if True:
+        logger.info(f"[Epoch]epoch={epoch} finished\n")
+        if epoch == model_params["TRAIN_EPOCHS"] - 1:
             logger.info(f"[Saving Model]...\n")
-            path = os.path.join(output_dir, "model_files" + "_epoch_{}".format(epoch))
+            path = os.path.join(output_dir, "model_files")
             model.save_pretrained(path)
             tokenizer.save_pretrained(path)
 
-            # 3) evaluating test dataset
-            logger.info(f"[Initiating Validation]...\n")
-            with torch.no_grad():  # add 2022.10.4
-                if epoch != model_params["TRAIN_EPOCHS"] - 1:
-                    continue
-                predictions, actuals, source = validate(tokenizer, model, val_loader,
-                                                        model_params["MAX_TARGET_TEXT_LENGTH"])
-                predict_path = output_dir + "epoch_{}".format(epoch) + "_predictions.csv"
-                final_df = pd.DataFrame({"source_text": source, "Generated Text": predictions, "Actual Text": actuals})
-                final_df.to_csv(predict_path, index=False, sep="\t")
+        # 3) evaluating test dataset
+        logger.info(f"[Initiating Validation]...\n")
+        with torch.no_grad():  # add 2022.10.4
+            predictions, actuals, source = validate(tokenizer, model, val_loader,
+                                                    model_params["MAX_TARGET_TEXT_LENGTH"])
+            predict_path = output_dir + "epoch_{}".format(epoch) + "_predictions.csv"
+            final_df = pd.DataFrame({"source_text": source, "Generated Text": predictions, "Actual Text": actuals})
+            final_df.to_csv(predict_path, index=False, sep="\t")
 
     logger.info(f"[Validation Completed.]\n")
     logger.info(
@@ -238,6 +237,9 @@ def T5Trainer():
 
 if __name__ == "__main__":
     model_name = sys.argv[1]
+    train_epochs = sys.argv[2]
     print("base model: " + model_name)
     model_params['MODEL'] = model_name
+    model_params['TRAIN_EPOCHS'] = train_epochs
+
     T5Trainer()

@@ -36,7 +36,7 @@ def prepare_data():
     # train_data_list = [{"source": "你今天好吗", "target": "挺好的"}]
     # valid_data_list = [{"source": "你好吗", "target": "还行"}]
 
-    train_data_list = data * 40
+    train_data_list = data * 20
     valid_data_list = data
 
     return train_data_list, valid_data_list

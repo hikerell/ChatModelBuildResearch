@@ -217,13 +217,14 @@ def T5Trainer():
             tokenizer.save_pretrained(path)
 
         # 3) evaluating test dataset
-        logger.info(f"[Initiating Validation]...\n")
-        with torch.no_grad():  # add 2022.10.4
-            predictions, actuals, source = validate(tokenizer, model, val_loader,
-                                                    model_params["MAX_TARGET_TEXT_LENGTH"])
-            predict_path = output_dir + "epoch_{}".format(epoch) + "_predictions.csv"
-            final_df = pd.DataFrame({"source_text": source, "Generated Text": predictions, "Actual Text": actuals})
-            final_df.to_csv(predict_path, index=False, sep="\t")
+        if (epoch >= 4 and epoch % 4 == 0) or (epoch == model_params["TRAIN_EPOCHS"] - 1):
+            logger.info(f"[Initiating Validation]...\n")
+            with torch.no_grad():  # add 2022.10.4
+                predictions, actuals, source = validate(tokenizer, model, val_loader,
+                                                        model_params["MAX_TARGET_TEXT_LENGTH"])
+                predict_path = output_dir + "epoch_{}".format(epoch) + "_predictions.csv"
+                final_df = pd.DataFrame({"source_text": source, "Generated Text": predictions, "Actual Text": actuals})
+                final_df.to_csv(predict_path, index=False, sep="\t")
 
     logger.info(f"[Validation Completed.]\n")
     logger.info(

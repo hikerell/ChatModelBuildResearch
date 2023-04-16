@@ -22,6 +22,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path",
                         type=str,
+                        required=True,
                         help="Directory containing trained actor model")
     parser.add_argument(
         "--max_new_tokens",
@@ -58,7 +59,7 @@ def get_generator(path):
 
 def get_user_input(user_input):
     tmp = input("Enter input (type 'quit' to exit, 'clear' to clean memory): ")
-    new_inputs = f"Human: {tmp}\n Assistant: "
+    new_inputs = f"Human: {tmp} Assistant: "
     user_input += f" {new_inputs}"
     return user_input, tmp == "quit", tmp == "clear"
 
@@ -84,7 +85,9 @@ def main(args):
     generator = get_generator(args.path)
     set_seed(42)
 
-    user_input = ""
+    system = "System: answer human questions."
+
+    user_input = system
     num_rounds = 0
     while True:
         num_rounds += 1
@@ -93,7 +96,7 @@ def main(args):
         if quit:
             break
         if clear:
-            user_input, num_rounds = "", 0
+            user_input, num_rounds = system, 0
             continue
 
         response = get_model_response(generator, user_input,

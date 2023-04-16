@@ -240,6 +240,6 @@ if __name__ == "__main__":
     train_epochs = sys.argv[2]
     print("base model: " + model_name)
     model_params['MODEL'] = model_name
-    model_params['TRAIN_EPOCHS'] = train_epochs
+    model_params['TRAIN_EPOCHS'] = int(train_epochs)
 
     T5Trainer()

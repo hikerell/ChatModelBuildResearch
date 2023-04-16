@@ -9,6 +9,6 @@ tensorflow
 flax
 loguru
 scikit-learn
-sentencepiece==0.1.91
+sentencepiece>=0.1.97
 horovod==0.23.0
 torch_optimizer
